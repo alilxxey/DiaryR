@@ -39,13 +39,10 @@ def check_person(_id):
 
 
 def check():
-    print('checkes1')
     with open("database.json") as f:
         database = json.load(f)
-        print('checkes2')
     for _id in database.keys():
         try:
-            print('checkes2')
             nowtime = OurTime(int(database[_id]['timez']))
             print(nowtime.minute, nowtime.hour)
             dt = database[_id]['dtime']
@@ -56,7 +53,6 @@ def check():
             if nowtime.minute >= 60:
                 nowtime.hour += 1
                 nowtime.minute -= 60
-            print(nowtime.minute, nowtime.hour)
             time_form = f'{nowtime.hour if len(str(nowtime.hour)) == 2 else str(0) + str(nowtime.hour)}:' \
                         f'{nowtime.minute if len(str(nowtime.minute)) == 2 else str(0) + str(nowtime.minute)}'
 
@@ -65,6 +61,7 @@ def check():
                      t=time_form)
         except KeyError as e:
             print(e)
+
 
 def start_sch():
     for hour in range(0, 24):
@@ -110,7 +107,12 @@ def setdtime(message):
         if not b[0]:
             bot.send_message(message.chat.id, "Остался файл")
         else:
-            bot.send_message(message.chat.id, "Все сделано")
+            markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
+            b1 = telebot.types.InlineKeyboardButton("Расписание на сегодня")
+            b2 = telebot.types.InlineKeyboardButton("Расписание на завтра")
+            b3 = telebot.types.InlineKeyboardButton("Следующий урок")
+            markup.add(b1, b2, b3)
+            bot.send_message(message.chat.id, "Все сделано", reply_markup=markup)
     except TypeError as e:
         print(e)
         bot.send_message(message.chat.id, str(e) + '')
@@ -131,9 +133,7 @@ def text(message):
         timez = "3"
         parcer.change_tz(_id=message.chat.id,
                          newtz=timez)
-        bot.send_message(message.chat.id, "За сколько до урока скидывать уведомление(число кратное 5)?"
-                                          " Напишите команду /dtime x", reply_markup=telebot.types.ReplyKeyboardRemove())
-
+        bot.send_message(message.chat.id, f"За сколько до урока скидывать уведомление(число кратное 5)?\nНапишите команду /dtime <b>{'x'}</b>", parse_mode='html', reply_markup=telebot.types.ReplyKeyboardRemove())
 
 
 @bot.message_handler(content_types=['document'])
@@ -151,7 +151,12 @@ def handle_docs_photo(message):
         if not b[1]:
             bot.send_message(message.chat.id, "Остался часовой пояс и /dtime")
         else:
-            bot.send_message(message.chat.id, "Все сделано")
+            markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
+            b1 = telebot.types.InlineKeyboardButton("Расписание на сегодня")
+            b2 = telebot.types.InlineKeyboardButton("Расписание на завтра")
+            b3 = telebot.types.InlineKeyboardButton("Следующий урок")
+            markup.add(b1, b2, b3)
+            bot.send_message(message.chat.id, "Все сделано", reply_markup=markup)
     except Exception as exc:
         bot.reply_to(message, (str(exc) + '  - ОШИБКА!'))
 
