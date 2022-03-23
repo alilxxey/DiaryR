@@ -106,6 +106,11 @@ def setdtime(message):
             dtime = 5
         parcer.add_dtime(_id=message.chat.id,
                          dtime=dtime)
+        b = check_person(str(message.chat.id))
+        if not b[0]:
+            bot.send_message(message.chat.id, "Остался файл")
+        else:
+            bot.send_message(message.chat.id, "Все сделано")
     except TypeError as e:
         print(e)
         bot.send_message(message.chat.id, str(e) + '')
@@ -114,12 +119,12 @@ def setdtime(message):
 @bot.message_handler()
 def text(message):
     if message.text == 'Часовой пояc':
-        bot.send_message(message.chat.id, 'отправь сообщение в формате "+- х"', parse_mode='html')
+        bot.send_message(message.chat.id, 'отправь сообщение в формате "+- х"', reply_markup=telebot.types.ReplyKeyboardRemove())
+
     elif message.text[0] in "+-":
         timez = message.text.replace(" ", "").replace('+', '')
         parcer.change_tz(_id=message.chat.id,
                          newtz=timez)
-        print()
         bot.send_message(message.chat.id, "За сколько до урока скидывать уведомление(число кратное 5)?"
                                           " Напишите команду /dtime x")
     elif message.text == "Я из Москвы":
@@ -127,7 +132,8 @@ def text(message):
         parcer.change_tz(_id=message.chat.id,
                          newtz=timez)
         bot.send_message(message.chat.id, "За сколько до урока скидывать уведомление(число кратное 5)?"
-                                          " Напишите команду /dtime x")
+                                          " Напишите команду /dtime x", reply_markup=telebot.types.ReplyKeyboardRemove())
+
 
 
 @bot.message_handler(content_types=['document'])
@@ -141,6 +147,11 @@ def handle_docs_photo(message):
             new_file.write(downloaded_file)
         bot.reply_to(message, "Я получил ваш файл")
         parcer.parce(chat_id)
+        b = check_person(str(message.chat.id))
+        if not b[1]:
+            bot.send_message(message.chat.id, "Остался часовой пояс и /dtime")
+        else:
+            bot.send_message(message.chat.id, "Все сделано")
     except Exception as exc:
         bot.reply_to(message, (str(exc) + '  - ОШИБКА!'))
 
