@@ -1,5 +1,4 @@
 import pprint
-
 import pandas as pd
 import json
 from main import check_person
