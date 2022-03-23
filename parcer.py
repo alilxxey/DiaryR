@@ -18,7 +18,6 @@ def parce(_id):
     for i in range(1, len(m1) + 1):
         s[str(i)] = m1[i - 1]
     a = check_person(_id)
-    print(a)
     with open("database.json") as file:
         sfile = json.load(file)
         if a[1]:
@@ -27,7 +26,6 @@ def parce(_id):
                 sfile1[str(i)] = s[i]
             sfile[str(_id)] = sfile1
         else:
-            print("nene")
             sfile[str(_id)] = s
     with open("database.json", "w", encoding='utf-8') as file:
         json.dump(sfile, file)
@@ -42,7 +40,6 @@ def change_tz(_id, newtz):
             sfile1 = sfile[str(_id)]
             if a[0]:
                 sfile1["timez"] = newtz
-                print(sfile1)
                 sfile[str(_id)] = sfile1
             else:
                 sfile[str(_id)] = {"timez": newtz}
@@ -56,15 +53,10 @@ def change_tz(_id, newtz):
 
 def add_dtime(_id, dtime):
     with open("database.json") as file:
-        print(1)
         sfile = json.load(file)
-        pprint.pprint(sfile)
         sfile1 = sfile[str(_id)]
-        print(3)
         sfile1["dtime"] = dtime
-        print(4)
         sfile[str(_id)] = sfile1
-        print(5)
     pprint.pprint(sfile)
     with open("database.json", "w") as file:
         json.dump(sfile, file)
