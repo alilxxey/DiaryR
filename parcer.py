@@ -26,6 +26,8 @@ def parce(_id):
             sfile[str(_id)] = sfile1
         else:
             sfile[str(_id)] = s
+    if "7" not in sfile[str(_id)]:
+        sfile[str(_id)]["7"] = {}
     with open("database.json", "w", encoding='utf-8') as file:
         json.dump(sfile, file)
     return
@@ -60,3 +62,15 @@ def add_dtime(_id, dtime):
     with open("database.json", "w") as file:
         json.dump(sfile, file)
     return
+
+
+def day_dairy(_id, day):
+    with open("database.json") as file:
+        sfile = json.load(file)
+        sfile1 = sfile[str(_id)][str(day)]
+    if sfile1 == {}:
+        return " нет уроков"
+    daylessons = ""
+    for i in sfile1.keys():
+        daylessons += f'{i} - {sfile1[i]}\n'
+    return daylessons
