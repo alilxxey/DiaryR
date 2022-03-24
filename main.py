@@ -120,10 +120,6 @@ start_sch()
 
 @bot.message_handler(commands=['changeDtime'])
 def changedtime(message):
-    with open("database.json") as file:
-        sfile = json.load(file)
-    if str(message.chat.id) in sfile and "stickers" in sfile[str(message.chat.id)]:
-        bot.send_sticker(message.chat.id, random.choice(sfile[str(message.chat.id)]["stickers"]))
     try:
         bot.send_message(message.chat.id,
                          f"За сколько минут до урока скидывать уведомление(число кратное 5)?\nНапишите команду /dtime <b>{'x'}</b>",
@@ -168,10 +164,6 @@ def del_stickers(message):
 
 @bot.message_handler(commands=['changeTZ'])
 def changetz(message):
-    with open("database.json") as file:
-        sfile = json.load(file)
-    if str(message.chat.id) in sfile and "stickers" in sfile[str(message.chat.id)]:
-        bot.send_sticker(message.chat.id, random.choice(sfile[str(message.chat.id)]["stickers"]))
     try:
         bot.send_message(message.chat.id, f'Напиши свой часовой пояс в формате ± <b>x</b>\n(Москва: +3)', reply_markup=telebot.types.ReplyKeyboardRemove())
 
@@ -217,10 +209,6 @@ def ready(message):
 
 @bot.message_handler(commands=['settings'])
 def settings(message):
-    with open("database.json") as file:
-        sfile = json.load(file)
-    if str(message.chat.id) in sfile and "stickers" in sfile[str(message.chat.id)]:
-        bot.send_sticker(message.chat.id, random.choice(sfile[str(message.chat.id)]["stickers"]))
     try:
         _id = message.chat.id
         with open('database.json') as f:
@@ -267,10 +255,6 @@ def start(message):
 
 @bot.message_handler(commands=['dtime'])
 def setdtime(message):
-    with open("database.json") as file:
-        sfile = json.load(file)
-    if str(message.chat.id) in sfile and "stickers" in sfile[str(message.chat.id)]:
-        bot.send_sticker(message.chat.id, random.choice(sfile[str(message.chat.id)]["stickers"]))
     try:
         a = message.text.replace('/dtime ', '')
         if not a:
@@ -346,8 +330,12 @@ def text(message):
                          parse_mode='html',
                          reply_markup=telebot.types.ReplyKeyboardRemove())
     elif message.text == "Расписание на сегодня":
-        info = parcer.day_dairy(message.chat.id, today)
-        bot.send_message(message.chat.id, f'Сегодня{info}' if info == " нет уроков" else info)
+        n = 0
+        info = f'{parcer.day_dairy(message.chat.id, (today + n) % 7 if today != 6 else 7)}\n'
+        while info[-12:-2] == "нет уроков":
+            n += 1
+            info += f'{parcer.day_dairy(message.chat.id, (today + n) % 7 if today + n != 7 else 7)}\n'
+        bot.send_message(message.chat.id, info)
     elif message.text == "Расписание на завтра":
         n = 1
         info = f'{parcer.day_dairy(message.chat.id, (today + n) % 7 if today != 6 else 7)}\n'
@@ -377,10 +365,6 @@ def text(message):
 
 @bot.message_handler(content_types=['document'])
 def handle_docs_photo(message):
-    with open("daabase.json") as file:
-        sfile = json.load(file)
-    if str(message.chat.id) in sfile and "stickers" in sfile[str(message.chat.id)]:
-        bot.send_sticker(message.chat.id, random.choice(sfile[str(message.chat.id)]["stickers"]))
     try:
         try:
             chat_id = message.chat.id
@@ -417,6 +401,10 @@ def handle_docs_photo(message):
 
 @bot.message_handler()
 def send_not(_id, lesson, dtime):
+    with open("database.json") as file:
+        sfile = json.load(file)
+    if str(_id) in sfile and "stickers" in sfile[str(_id)]:
+        bot.send_sticker(_id, random.choice(sfile[str(_id)]["stickers"]))
     _id = str(_id)
     with open("message.json") as file:
         mfile = json.load(file)
@@ -439,7 +427,6 @@ def send_not(_id, lesson, dtime):
         bot.send_message(_id, f'Скоро урок "{lesson}"!\nчерез {dtime} минут')
     with open("message.json", "w") as file:
         json.dump(mfile, file)
-    print(mfile)
 
 
 if __name__ == '__main__':
