@@ -414,16 +414,19 @@ def handle_docs_photo(message):
 @bot.message_handler()
 def send_not(_id, lesson, dtime):
     _id = str(_id)
-    if time.strftime("%H:%M") == "00:00":
-        with open("message.json", "w") as file:
-            json.dump({}, file)
+    with open("message.json") as file:
+        mfile = json.load(file)
+    if mfile != {}:
+        if [i for i in mfile[[i for i in mfile][0]]][0] != time.strftime("%H:%M"):
+            with open("message.json", "w") as file:
+                json.dump({}, file)
     with open("message.json") as file:
         mfile = json.load(file)
     if _id in mfile:
         mfile1 = mfile[_id]
-        if time.strftime("%H:%M") not in mfile1:
-            mfile1[time.strftime("%H:%M")].append(lesson)
+        if lesson not in mfile1[time.strftime("%H:%M")]:
             bot.send_message(_id, f'Скоро урок "{lesson}"!\nчерез {dtime} минут')
+            mfile1[time.strftime("%H:%M")].append(lesson)
         mfile[_id] = mfile1
     else:
         mfile1 = {time.strftime("%H:%M"): [lesson]}
@@ -431,6 +434,7 @@ def send_not(_id, lesson, dtime):
         bot.send_message(_id, f'Скоро урок "{lesson}"!\nчерез {dtime} минут')
     with open("message.json", "w") as file:
         json.dump(mfile, file)
+    print(mfile)
 
 
 if __name__ == '__main__':
