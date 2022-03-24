@@ -1,3 +1,5 @@
+import pprint
+
 import telebot
 import time
 from multiprocessing.context import Process
@@ -91,6 +93,7 @@ def check():
 
 def start_sch():
     try:
+        times = []
         for hour in range(0, 24):
             for minute in range(0, 60, 5):
                 if len(str(hour)) == 2:
@@ -104,8 +107,10 @@ def start_sch():
 
                 else:
                     m = str(0) + str(minute)
-                schedule.every().day.at(f'{h}:{m}').do(check)
-
+                if f'{h}:{m}' not in times:
+                    times.append(f'{h}:{m}')
+        for i in times:
+            schedule.every().day.at(i).do(check)
     except Exception as e:
         print(e)
 
@@ -400,7 +405,7 @@ def handle_docs_photo(message):
                                  reply_markup=markup)
 
         except Exception as exc:
-            bot.reply_to(message, (str(exc) + '  - ОШИБКА!'))
+            bot.reply_to(message, (str(exc) + ' - ОШИБКА!'))
 
     except Exception as e:
         print(e)
@@ -408,9 +413,34 @@ def handle_docs_photo(message):
 
 @bot.message_handler()
 def send_not(_id, lesson, dtime):
+    if time.strftime("%H:%M") == "00:00":
+        with open("message.json", "w") as file:
+            json.dump({}, file)
     try:
-        bot.send_message(_id, f'Скоро урок "{lesson}"!\nУрок через {dtime} минут')
-
+        with open("message.json") as file:
+            mfile = json.load(file)
+        if mfile == {}:
+            new_mfile = {time.strftime("%m/%d"): {time.strftime("%H:%M"): [lesson]}}
+            bot.send_message(_id, f'Скоро урок "{lesson}"!\nчерез {dtime} минут')
+            with open("message.json", "w") as file:
+                json.dump(new_mfile, file)
+        else:
+            try:
+                mfile1 = mfile[time.strftime("%m/%d")]
+                if time.strftime("%H:%M") not in mfile1:
+                    mfile1[time.strftime("%H:%M")] = [lesson]
+                    bot.send_message(_id, f'Скоро урок "{lesson}"!\nчерез {dtime} минут')
+                elif time.strftime("%H:%M") in mfile1:
+                    if lesson not in mfile1[time.strftime("%H:%M")]:
+                        bot.send_message(_id, f'Скоро урок "{lesson}"!\nчерез {dtime} минут')
+                        mfile1[time.strftime("%H:%M")].append(lesson)
+                    else:
+                        pass
+                mfile[time.strftime("%m/%d")] = mfile1
+                with open("message.json", "w") as file:
+                    json.dump(mfile, file)
+            except Exception as e:
+                print(e)
     except Exception as e:
         print(e)
 

@@ -85,4 +85,4 @@ def day_dairy(_id, day):
     daylessons = ""
     for i in sfile1.keys():
         daylessons += f'{i} - {sfile1[i]}\n'
-    return daylessons
+    return f'{["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"][day - 1]}\n{daylessons}'
