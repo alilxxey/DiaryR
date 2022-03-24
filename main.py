@@ -1,5 +1,3 @@
-import pprint
-
 import telebot
 import time
 from multiprocessing.context import Process
@@ -122,7 +120,8 @@ start_sch()
 def changedtime(message):
     try:
         bot.send_message(message.chat.id,
-                         f"За сколько минут до урока скидывать уведомление(число кратное 5)?\nНапишите команду /dtime <b>{'x'}</b>",
+                         f"За сколько минут до урока скидывать уведомление(число кратное 5)?\n"
+                         f"Напишите команду /dtime <b>{'x'}</b>",
                          parse_mode="html")
     except Exception as e:
         print(e)
@@ -130,7 +129,9 @@ def changedtime(message):
 
 @bot.message_handler(commands=['stickers'])
 def stickers(message):
-    bot.send_message(message.chat.id, "Скинь боту свои любимые стикеры\n/del_stickers - Если ты хочешь удалить уже ранее добавленные стикеры\n/ready - Обратно", reply_markup=telebot.types.ReplyKeyboardRemove())
+    bot.send_message(message.chat.id, "Скинь боту свои любимые стикеры\n"
+                                      "/del_stickers - Если ты хочешь удалить уже ранее добавленные стикеры\n"
+                                      "/ready - Обратно", reply_markup=telebot.types.ReplyKeyboardRemove())
 
 
 @bot.message_handler(content_types=['sticker'])
@@ -165,7 +166,8 @@ def del_stickers(message):
 @bot.message_handler(commands=['changeTZ'])
 def changetz(message):
     try:
-        bot.send_message(message.chat.id, f'Напиши свой часовой пояс в формате ± <b>x</b>\n(Москва: +3)', reply_markup=telebot.types.ReplyKeyboardRemove())
+        bot.send_message(message.chat.id, f'Напиши свой часовой пояс в формате ± <b>x</b>\n(Москва: +3)',
+                         reply_markup=telebot.types.ReplyKeyboardRemove())
 
     except Exception as e:
         print(e)
@@ -181,8 +183,8 @@ def diary(message):
         _id = message.chat.id
         alldairy = ""
         for i in range(1, 8):
-            day_D = parcer.day_dairy(_id, i)
-            alldairy += f'{day_D}\n'
+            day_d = parcer.day_dairy(_id, i)
+            alldairy += f'{day_d}\n'
         bot.send_message(_id, alldairy)
         bot.send_message(message.chat.id, f'Расписание устарело или загрузилось неправильно?\n'
                                           f'Просто отправь новый файл с расписанием\n'
@@ -204,7 +206,8 @@ def ready(message):
     b3 = telebot.types.InlineKeyboardButton("Следующий урок")
     markup.add(b1, b2, b3)
 
-    bot.send_message(message.chat.id, "Все сделано\n/settings - Проверить или изменить\n/stickers - Tы можешь разбавить дизайн своими стикерами", reply_markup=markup)
+    bot.send_message(message.chat.id, "Все сделано\n/settings - Проверить или изменить\n"
+                                      "/stickers - Tы можешь разбавить дизайн своими стикерами", reply_markup=markup)
 
 
 @bot.message_handler(commands=['settings'])
@@ -261,8 +264,6 @@ def setdtime(message):
             bot.send_message(message.chat.id, f'Ты не отправил число:( \nПосле команды /dtime укажи число\n'
                                               f'Пример: (/dtime 5)')
             return
-
-
         try:
             dtime = int(a) - int(a) % 5
 
@@ -283,7 +284,8 @@ def setdtime(message):
                 b3 = telebot.types.InlineKeyboardButton("Следующий урок")
                 markup.add(b1, b2, b3)
                 bot.send_message(message.chat.id,
-                                 "Все сделано\n/settings - Проверить или изменить\n/stickers - Tы можешь разбавить дизайн своими стикерами",
+                                 "Все сделано\n/settings - Проверить или изменить\n"
+                                 "/stickers - Tы можешь разбавить дизайн своими стикерами",
                                  reply_markup=markup)
 
         except TypeError as e:
@@ -312,7 +314,8 @@ def text(message):
                          newtz=timez)
         if not check_person(message.chat.id)[2]:
             bot.send_message(message.chat.id,
-                             f"За сколько минут до урока скидывать уведомление(число кратное 5)?\nНапишите команду /dtime <b>{'x'}</b>",
+                             f"За сколько минут до урока скидывать уведомление(число кратное 5)?\n"
+                             f"Напишите команду /dtime <b>{'x'}</b>",
                              parse_mode="html")
         else:
             markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -320,7 +323,9 @@ def text(message):
             b2 = telebot.types.InlineKeyboardButton("Расписание на завтра")
             b3 = telebot.types.InlineKeyboardButton("Следующий урок")
             markup.add(b1, b2, b3)
-            bot.send_message(message.chat.id, "Все сделано\n/settings - Проверить или изменить\n/stickers - Tы можешь разбавить дизайн своими стикерами", reply_markup=markup)
+            bot.send_message(message.chat.id, "Все сделано\n/settings - Проверить или изменить\n"
+                                              "/stickers - Tы можешь разбавить дизайн своими стикерами",
+                             reply_markup=markup)
     elif message.text == "Я из Москвы":
         timez = "3"
         parcer.change_tz(_id=message.chat.id,
@@ -389,11 +394,12 @@ def handle_docs_photo(message):
                 b3 = telebot.types.InlineKeyboardButton("Следующий урок")
                 markup.add(b1, b2, b3)
                 bot.send_message(message.chat.id,
-                                 "Все сделано\n/settings - Проверить или изменить\n/stickers - Tы можешь разбавить дизайн своими стикерами",
+                                 "Все сделано\n/settings - Проверить или изменить\n"
+                                 "/stickers - Tы можешь разбавить дизайн своими стикерами",
                                  reply_markup=markup)
 
-        except Exception as exc:
-            bot.reply_to(message, (str(exc) + ' - ОШИБКА!'))
+        except Exception as e1:
+            bot.reply_to(message, (str(e1) + ' - ОШИБКА!'))
 
     except Exception as e:
         print(e)
