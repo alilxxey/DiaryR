@@ -190,7 +190,8 @@ def diary(message):
             alldairy += f'{["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"][i - 1]}:\n{parcer.day_dairy(_id, i)}\n'
         bot.send_message(_id, alldairy)
         bot.send_message(message.chat.id, f'Расписание устарело или загрузилось неправильно?\n'
-                                          f'Просто отправь новый файл с расписанием')
+                                          f'Просто отправь новый файл с расписанием\n'
+                                          f'/ready - Обратно')
 
     except Exception as e:
         print(e)
@@ -231,7 +232,7 @@ def settings(message):
                                           f'или ты хочешь его изменить:\n'
                                           f'/changeDtime - изменить время уведомления до урока\n'
                                           f'/changeTZ - изменить часовой пояс\n'
-                                          f'/dairy - проверить расписание'
+                                          f'/diary - проверить расписание\n'
                                           f'/ready - Обратно')
 
     except Exception as e:
@@ -364,7 +365,7 @@ def text(message):
             next_today = (next_today + 1) % 7 if today != 6 else 7
         bot.send_message(message.chat.id, info)
     else:
-        bot.send_message(message.chat.id, "Не понял о чем ты")
+        bot.send_message(message.chat.id, "Не понял о чем ты\n/ready - Обратно")
 
 
 @bot.message_handler(content_types=['document'])
