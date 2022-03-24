@@ -180,6 +180,7 @@ def ready(message):
     b2 = telebot.types.InlineKeyboardButton("Расписание на завтра")
     b3 = telebot.types.InlineKeyboardButton("Следующий урок")
     markup.add(b1, b2, b3)
+    bot.send_message(message.chat.id, random.choice(Efremov), reply_markup=markup)
 
 
 @bot.message_handler(commands=['settings'])
@@ -283,7 +284,10 @@ def text(message):
     if message.text == 'Часовой пояc':
         bot.send_message(message.chat.id, 'отправь сообщение в формате "+- х"',
                          reply_markup=telebot.types.ReplyKeyboardRemove())
-
+        if not check_person(message.chat.id)[2]:
+            bot.send_message(message.chat.id,
+                             f"За сколько минут до урока скидывать уведомление(число кратное 5)?\nНапишите команду /dtime <b>{'x'}</b>",
+                             parse_mode="html")
     elif message.text[0] in "+-":
         timez = message.text.replace(" ", "").replace('+', '')
         parcer.change_tz(_id=message.chat.id,
