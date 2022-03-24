@@ -176,18 +176,16 @@ def changetz(message):
 
 @bot.message_handler(commands=['diary'])
 def diary(message):
-    print(4563890)
     with open("database.json") as file:
         sfile = json.load(file)
     if str(message.chat.id) in sfile and "stickers" in sfile[str(message.chat.id)]:
         bot.send_sticker(message.chat.id, random.choice(sfile[str(message.chat.id)]["stickers"]))
     try:
-        print(1234)
         _id = message.chat.id
         alldairy = ""
         for i in range(1, 8):
-            print(i)
-            alldairy += f'{["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"][i - 1]}:\n{parcer.day_dairy(_id, i)}\n'
+            day_D = parcer.day_dairy(_id, i)
+            alldairy += f'{["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"][i - 1]}:\n{day_D if day_D != " нет уроков" else day_D[1:]}\n'
         bot.send_message(_id, alldairy)
         bot.send_message(message.chat.id, f'Расписание устарело или загрузилось неправильно?\n'
                                           f'Просто отправь новый файл с расписанием\n'
