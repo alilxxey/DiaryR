@@ -300,7 +300,6 @@ def text(message):
         timez = message.text.replace(" ", "").replace('+', '')
         parcer.change_tz(_id=message.chat.id,
                          newtz=timez)
-        print(check_person(message.chat.id)[2])
         if not check_person(message.chat.id)[2]:
             bot.send_message(message.chat.id,
                              f"За сколько минут до урока скидывать уведомление(число кратное 5)?\nНапишите команду /dtime <b>{'x'}</b>",
