@@ -176,23 +176,19 @@ def changetz(message):
 
 @bot.message_handler(commands=['diary'])
 def diary(message):
+    print(4563890)
     with open("database.json") as file:
         sfile = json.load(file)
     if str(message.chat.id) in sfile and "stickers" in sfile[str(message.chat.id)]:
         bot.send_sticker(message.chat.id, random.choice(sfile[str(message.chat.id)]["stickers"]))
     try:
+        print(1234)
         _id = message.chat.id
-        with open('database.json') as f:
-            database = json.load(f)
-        sat = " ".join(database[str(_id)]["1"]) if database[str(_id)]["6"] else "Вы не учитесь в субботу"
-        bot.send_message(message.chat.id, f'Ваше расписание:\n'
-                                          f'Понедельник: \n{" ".join(database[str(_id)]["1"])}\n\n'
-                                          f'Вторник: \n{" ".join(database[str(_id)]["2"])}\n\n'
-                                          f'Среда: \n{" ".join(database[str(_id)]["3"])}\n\n'
-                                          f'Четверг: \n{" ".join(database[str(_id)]["4"])}\n\n'
-                                          f'Пятница: \n{" ".join(database[str(_id)]["5"])}\n\n'
-                                          f'Суббота: \n{sat}')
-
+        alldairy = ""
+        for i in range(1, 8):
+            print(i)
+            alldairy += f'{["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"][i - 1]}:\n{parcer.day_dairy(_id, i)}\n'
+        bot.send_message(_id, alldairy)
         bot.send_message(message.chat.id, f'Расписание устарело или загрузилось неправильно?\n'
                                           f'Просто отправь новый файл с расписанием')
 
@@ -235,6 +231,7 @@ def settings(message):
                                           f'или ты хочешь его изменить:\n'
                                           f'/changeDtime - изменить время уведомления до урока\n'
                                           f'/changeTZ - изменить часовой пояс\n'
+                                          f'/dairy - проверить расписание'
                                           f'/ready - Обратно')
 
     except Exception as e:
@@ -366,6 +363,8 @@ def text(message):
                     break
             next_today = (next_today + 1) % 7 if today != 6 else 7
         bot.send_message(message.chat.id, info)
+    else:
+        bot.send_message(message.chat.id, "Не понял о чем ты")
 
 
 @bot.message_handler(content_types=['document'])
