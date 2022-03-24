@@ -138,7 +138,6 @@ def settings(message):
                                       f'/changeTZ - изменить часовой пояс')
 
 
-
 @bot.message_handler(commands=['start'])
 def start(message):
     gif = \
@@ -158,6 +157,10 @@ def start(message):
 @bot.message_handler(commands=['dtime'])
 def setdtime(message):
     a = message.text.replace('/dtime ', '')
+    if not a:
+        bot.send_message(message.chat.id, f'Ты не отправил число:( \nПосле команды /dtime укажи число\n'
+                                          f'Пример: (/dtime 5)')
+        return
     if message.chat.id == 512770440:
         bot.send_sticker(message.from_user.id, random.choice(Efremov))
     try:
@@ -174,8 +177,7 @@ def setdtime(message):
             b1 = telebot.types.InlineKeyboardButton("Расписание на сегодня")
             b2 = telebot.types.InlineKeyboardButton("Расписание на завтра")
             b3 = telebot.types.InlineKeyboardButton("Следующий урок")
-            b4 = telebot.types.InlineKeyboardButton("/settings")
-            markup.add(b1, b2, b3, b4)
+            markup.add(b1, b2, b3)
             bot.send_message(message.chat.id, "Все сделано", reply_markup=markup)
     except TypeError as e:
         print(e)
@@ -250,7 +252,7 @@ def handle_docs_photo(message):
             b2 = telebot.types.InlineKeyboardButton("Расписание на завтра")
             b3 = telebot.types.InlineKeyboardButton("Следующий урок")
             markup.add(b1, b2, b3)
-            bot.send_message(message.chat.id, "Все сделано", reply_markup=markup)
+            bot.send_message(message.chat.id, "Все сделано, проверить: /settings", reply_markup=markup)
     except Exception as exc:
         bot.reply_to(message, (str(exc) + '  - ОШИБКА!'))
 
