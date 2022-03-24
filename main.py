@@ -80,7 +80,7 @@ def check():
 
                 send_not(_id=_id,
                          lesson=database[_id][str(nowtime.weekday)][time_form],
-                         dimet=dt)
+                         dtime=dt)
 
             except KeyError as e:
                 print(e)
@@ -185,7 +185,7 @@ def diary(message):
         alldairy = ""
         for i in range(1, 8):
             day_D = parcer.day_dairy(_id, i)
-            alldairy += f'{["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"][i - 1]}:\n{day_D if day_D != " нет уроков" else day_D[1:]}\n'
+            alldairy += f'{["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"][i - 1]}:\n{day_D[:-1] if day_D != " нет уроков" else day_D[1:]}\n\n'
         bot.send_message(_id, alldairy)
         bot.send_message(message.chat.id, f'Расписание устарело или загрузилось неправильно?\n'
                                           f'Просто отправь новый файл с расписанием\n'
