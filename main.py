@@ -413,36 +413,24 @@ def handle_docs_photo(message):
 
 @bot.message_handler()
 def send_not(_id, lesson, dtime):
+    _id = str(_id)
     if time.strftime("%H:%M") == "00:00":
         with open("message.json", "w") as file:
             json.dump({}, file)
-    try:
-        with open("message.json") as file:
-            mfile = json.load(file)
-        if mfile == {}:
-            new_mfile = {time.strftime("%m/%d"): {time.strftime("%H:%M"): [lesson]}}
+    with open("message.json") as file:
+        mfile = json.load(file)
+    if _id in mfile:
+        mfile1 = mfile[_id]
+        if time.strftime("%H:%M") not in mfile1:
+            mfile1[time.strftime("%H:%M")].append(lesson)
             bot.send_message(_id, f'Скоро урок "{lesson}"!\nчерез {dtime} минут')
-            with open("message.json", "w") as file:
-                json.dump(new_mfile, file)
-        else:
-            try:
-                mfile1 = mfile[time.strftime("%m/%d")]
-                if time.strftime("%H:%M") not in mfile1:
-                    mfile1[time.strftime("%H:%M")] = [lesson]
-                    bot.send_message(_id, f'Скоро урок "{lesson}"!\nчерез {dtime} минут')
-                elif time.strftime("%H:%M") in mfile1:
-                    if lesson not in mfile1[time.strftime("%H:%M")]:
-                        bot.send_message(_id, f'Скоро урок "{lesson}"!\nчерез {dtime} минут')
-                        mfile1[time.strftime("%H:%M")].append(lesson)
-                    else:
-                        pass
-                mfile[time.strftime("%m/%d")] = mfile1
-                with open("message.json", "w") as file:
-                    json.dump(mfile, file)
-            except Exception as e:
-                print(e)
-    except Exception as e:
-        print(e)
+        mfile[_id] = mfile1
+    else:
+        mfile1 = {time.strftime("%H:%M"): [lesson]}
+        mfile[_id] = mfile1
+        bot.send_message(_id, f'Скоро урок "{lesson}"!\nчерез {dtime} минут')
+    with open("message.json", "w") as file:
+        json.dump(mfile, file)
 
 
 if __name__ == '__main__':
