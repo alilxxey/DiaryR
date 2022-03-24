@@ -30,7 +30,6 @@ Efremov = ['CAACAgIAAxkBAAIF1WI7k-69I8AqNMUEAcCI2YUkkwXnAAIUKwAC4KOCB9LIZOk_oYww
            'CAACAgIAAxkBAAIF52I7lE1_a3_ExNLvV5FglKRSLEq4AALLawAC4KOCB6vsjdaatEAJIwQ']
 
 
-
 # noinspection PyMethodParameters
 class ScheduleMessage:
     @staticmethod
@@ -136,7 +135,8 @@ start_sch()
 def changedtime(message):
     try:
         bot.send_message(message.chat.id,
-                         f"За сколько минут до урока скидывать уведомление(число кратное 5)?\nНапишите команду /dtime <b>{'x'}</b>",
+                         f"За сколько минут до урока скидывать "
+                         f"уведомление(число кратное 5)?\nНапишите команду /dtime <b>'x'</b>",
                          parse_mode="html")
     except Exception as e:
         print(e)
@@ -286,7 +286,8 @@ def text(message):
                          reply_markup=telebot.types.ReplyKeyboardRemove())
         if not check_person(message.chat.id)[2]:
             bot.send_message(message.chat.id,
-                             f"За сколько минут до урока скидывать уведомление(число кратное 5)?\nНапишите команду /dtime <b>{'x'}</b>",
+                             f"За сколько минут до урока скидывать уведомление(число кратное 5)?\n"
+                             f"Напишите команду /dtime <b>'x'</b>",
                              parse_mode="html")
     elif message.text[0] in "+-":
         timez = message.text.replace(" ", "").replace('+', '')
@@ -294,7 +295,8 @@ def text(message):
                          newtz=timez)
         if check_person(str(message.chat.id))[2]:
             bot.send_message(message.chat.id,
-                             f"За сколько минут до урока скидывать уведомление(число кратное 5)?\nНапишите команду /dtime <b>{'x'}</b>",
+                             f"За сколько минут до урока скидывать уведомление(число кратное 5)?\n"
+                             f"Напишите команду /dtime <b>'x'</b>",
                              parse_mode="html")
         else:
             markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
