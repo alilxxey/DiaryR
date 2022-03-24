@@ -45,7 +45,7 @@ def change_tz(_id, newtz):
             else:
                 sfile[str(_id)] = {"timez": newtz}
         else:
-            sfile1 =  {"timez": newtz}
+            sfile1 = {"timez": newtz}
             sfile[str(_id)] = sfile1
     with open("database.json", "w", encoding='utf-8') as file:
         json.dump(sfile, file)
