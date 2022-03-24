@@ -32,6 +32,8 @@ Efremov = ['CAACAgIAAxkBAAIF1WI7k-69I8AqNMUEAcCI2YUkkwXnAAIUKwAC4KOCB9LIZOk_oYww
 
 
 # noinspection PyMethodParameters
+
+
 class ScheduleMessage:
     @staticmethod
     def try_send_schedule():
@@ -70,7 +72,7 @@ def check_person(_id):
     except KeyError:
         pass
     try:
-        if database[_id]["ditme"]:
+        if database[_id]["dtime"]:
             a[2] = True
     except KeyError:
         pass
@@ -134,6 +136,8 @@ start_sch()
 
 @bot.message_handler(commands=['changeDtime'])
 def changedtime(message):
+    if message.chat.id in [512770440, 831467583]:
+        bot.send_sticker(message.from_user.id, random.choice(Efremov))
     try:
         bot.send_message(message.chat.id,
                          f"За сколько минут до урока скидывать уведомление(число кратное 5)?\nНапишите команду /dtime <b>{'x'}</b>",
@@ -144,8 +148,10 @@ def changedtime(message):
 
 @bot.message_handler(commands=['changeTZ'])
 def changetz(message):
+    if message.chat.id in [512770440, 831467583]:
+        bot.send_sticker(message.from_user.id, random.choice(Efremov))
     try:
-        bot.send_message(message.chat.id, 'Напиши свой часовой пояс в формате ± <b>x</b>\n(Москва: +3)')
+        bot.send_message(message.chat.id, 'Напиши свой часовой пояс в формате ± <b>x</b>\n(Москва: +3)', reply_markup=telebot.types.ReplyKeyboardRemove())
 
     except Exception as e:
         print(e)
@@ -153,6 +159,8 @@ def changetz(message):
 
 @bot.message_handler(commands=['diary'])
 def diary(message):
+    if message.chat.id in [512770440, 831467583]:
+        bot.send_sticker(message.from_user.id, random.choice(Efremov))
     try:
         _id = message.chat.id
         with open('database.json') as f:
@@ -180,11 +188,15 @@ def ready(message):
     b2 = telebot.types.InlineKeyboardButton("Расписание на завтра")
     b3 = telebot.types.InlineKeyboardButton("Следующий урок")
     markup.add(b1, b2, b3)
-    bot.send_message(message.chat.id, random.choice(Efremov), reply_markup=markup)
+    if message.chat.id in [512770440, 831467583]:
+        bot.send_sticker(message.from_user.id, random.choice(Efremov))
+    bot.send_message(message.chat.id, "Все сделано", reply_markup=markup)
 
 
 @bot.message_handler(commands=['settings'])
 def settings(message):
+    if message.chat.id in [512770440, 831467583]:
+        bot.send_sticker(message.from_user.id, random.choice(Efremov))
     try:
         _id = message.chat.id
         with open('database.json') as f:
@@ -214,7 +226,7 @@ def start(message):
                          f'Привет, <b>{message.from_user.first_name}</b>',
                          parse_mode='html')
 
-        if message.chat.id == 512770440:
+        if message.chat.id in [512770440, 831467583]:
             bot.send_sticker(message.from_user.id, random.choice(Efremov))
 
         bot.send_animation(message.chat.id, gif)
@@ -240,7 +252,7 @@ def setdtime(message):
                                               f'Пример: (/dtime 5)')
             return
 
-        if message.chat.id == 512770440:
+        if message.chat.id in [512770440, 831467583]:
             bot.send_sticker(message.from_user.id, random.choice(Efremov))
 
         try:
@@ -276,7 +288,7 @@ def setdtime(message):
 
 @bot.message_handler()
 def text(message):
-    if message.chat.id == 512770440:
+    if message.chat.id in [512770440, 831467583]:
         bot.send_sticker(message.from_user.id, random.choice(Efremov))
     today = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].index(
         time.strftime("%A")) + 1
@@ -284,15 +296,12 @@ def text(message):
     if message.text == 'Часовой пояc':
         bot.send_message(message.chat.id, 'отправь сообщение в формате "+- х"',
                          reply_markup=telebot.types.ReplyKeyboardRemove())
-        if not check_person(message.chat.id)[2]:
-            bot.send_message(message.chat.id,
-                             f"За сколько минут до урока скидывать уведомление(число кратное 5)?\nНапишите команду /dtime <b>{'x'}</b>",
-                             parse_mode="html")
     elif message.text[0] in "+-":
         timez = message.text.replace(" ", "").replace('+', '')
         parcer.change_tz(_id=message.chat.id,
                          newtz=timez)
-        if check_person(str(message.chat.id))[2]:
+        print(check_person(message.chat.id)[2])
+        if not check_person(message.chat.id)[2]:
             bot.send_message(message.chat.id,
                              f"За сколько минут до урока скидывать уведомление(число кратное 5)?\nНапишите команду /dtime <b>{'x'}</b>",
                              parse_mode="html")
@@ -338,7 +347,7 @@ def text(message):
 @bot.message_handler(content_types=['document'])
 def handle_docs_photo(message):
     try:
-        if message.chat.id == 512770440:
+        if message.chat.id in [512770440, 831467583]:
             bot.send_sticker(message.from_user.id, random.choice(Efremov))
 
         try:
@@ -355,7 +364,7 @@ def handle_docs_photo(message):
             b = check_person(str(message.chat.id))
 
             if not b[1]:
-                bot.send_message(message.chat.id, "Остался часовой пояс и /dtime")
+                bot.send_message(message.chat.id, "Остался часовой пояс")
 
             else:
                 markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
