@@ -190,7 +190,7 @@ def diary(message):
         alldairy = ""
         for i in range(1, 8):
             day_D = parcer.day_dairy(_id, i)
-            alldairy += f'{["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"][i - 1]}:\n{day_D[:-1] if day_D != " нет уроков" else day_D[1:]}\n\n'
+            alldairy += f'{day_D}\n'
         bot.send_message(_id, alldairy)
         bot.send_message(message.chat.id, f'Расписание устарело или загрузилось неправильно?\n'
                                           f'Просто отправь новый файл с расписанием\n'
@@ -349,8 +349,12 @@ def text(message):
         info = parcer.day_dairy(message.chat.id, today)
         bot.send_message(message.chat.id, f'Сегодня{info}' if info == " нет уроков" else info)
     elif message.text == "Расписание на завтра":
-        info = parcer.day_dairy(message.chat.id, (today + 1) % 7 if today != 6 else 7)
-        bot.send_message(message.chat.id, f'Завтра{info}' if info == " нет уроков" else info)
+        n = 1
+        info = f'{parcer.day_dairy(message.chat.id, (today + n) % 7 if today != 6 else 7)}\n'
+        while info[-12:-2] == "нет уроков":
+            n += 1
+            info += f'{parcer.day_dairy(message.chat.id, (today + n) % 7 if today + n != 7 else 7)}\n'
+        bot.send_message(message.chat.id, info)
     elif message.text == "Следующий урок":
         with open("database.json") as file:
             sfile = json.load(file)
@@ -373,7 +377,7 @@ def text(message):
 
 @bot.message_handler(content_types=['document'])
 def handle_docs_photo(message):
-    with open("database.json") as file:
+    with open("daabase.json") as file:
         sfile = json.load(file)
     if str(message.chat.id) in sfile and "stickers" in sfile[str(message.chat.id)]:
         bot.send_sticker(message.chat.id, random.choice(sfile[str(message.chat.id)]["stickers"]))
@@ -417,6 +421,7 @@ def send_not(_id, lesson, dtime):
     with open("message.json") as file:
         mfile = json.load(file)
     if mfile != {}:
+        print([i for i in mfile[[i for i in mfile][0]]][0])
         if [i for i in mfile[[i for i in mfile][0]]][0] != time.strftime("%H:%M"):
             with open("message.json", "w") as file:
                 json.dump({}, file)
