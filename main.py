@@ -55,27 +55,26 @@ class OurTime:
 
 
 def check_person(_id):
+    _id = str(_id)
+    with open("database.json") as f:
+        database = json.load(f)
+    a = [False, False, False]
     try:
-        _id = str(_id)
-        with open("database.json") as f:
-            database = json.load(f)
-        a = [False, False]
-        try:
-            if database[_id]["1"]:
-                a[0] = True
-
-        except KeyError:
-            pass
-        try:
-            if database[_id]['timez']:
-                a[1] = True
-
-        except KeyError:
-            pass
-        return a
-
-    except Exception as e:
-        print(e)
+        if database[_id]["1"]:
+            a[0] = True
+    except KeyError:
+        pass
+    try:
+        if database[_id]['timez']:
+            a[1] = True
+    except KeyError:
+        pass
+    try:
+        if database[_id]["ditme"]:
+            a[2] = True
+    except KeyError:
+        pass
+    return a
 
 
 def check():
@@ -136,9 +135,9 @@ start_sch()
 @bot.message_handler(commands=['changeDtime'])
 def changedtime(message):
     try:
-        _id = message.chat.id
-        bot.send_message(message.chat.id, 'мы еще не сделали не трогай блять')
-
+        bot.send_message(message.chat.id,
+                         f"За сколько минут до урока скидывать уведомление(число кратное 5)?\nНапишите команду /dtime <b>{'x'}</b>",
+                         parse_mode="html")
     except Exception as e:
         print(e)
 
@@ -174,6 +173,15 @@ def diary(message):
         print(e)
 
 
+@bot.message_handler(commands=['ready'])
+def ready(message):
+    markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
+    b1 = telebot.types.InlineKeyboardButton("Расписание на сегодня")
+    b2 = telebot.types.InlineKeyboardButton("Расписание на завтра")
+    b3 = telebot.types.InlineKeyboardButton("Следующий урок")
+    markup.add(b1, b2, b3)
+
+
 @bot.message_handler(commands=['settings'])
 def settings(message):
     try:
@@ -183,12 +191,14 @@ def settings(message):
 
         bot.send_message(message.chat.id, f'Время, за которое приходит уведомление: {database[str(_id)]["dtime"]}\n'
                                           f'Ваш часовой пояс: UTC{database[str(_id)]["timez"]}\n'
-                                          f'Сообщить о неисправности: @alilxxey @bez_griga')
+                                          f'Сообщить о неисправности: @alilxxey @bez_griga',
+                         reply_markup=telebot.types.ReplyKeyboardRemove())
 
         bot.send_message(message.chat.id, f'Если один из параметров установлен неправильно '
                                           f'или ты хочешь его изменить:\n'
                                           f'/changeDtime - изменить время уведомления до урока\n'
-                                          f'/changeTZ - изменить часовой пояс')
+                                          f'/changeTZ - изменить часовой пояс\n'
+                                          f'/ready - все корректно')
 
     except Exception as e:
         print(e)
@@ -278,8 +288,17 @@ def text(message):
         timez = message.text.replace(" ", "").replace('+', '')
         parcer.change_tz(_id=message.chat.id,
                          newtz=timez)
-        bot.send_message(message.chat.id, f"За сколько до урока скидывать уведомление(число кратное 5)?"
-                                          f"\nНапишите команду /dtime <b>{'x'}</b>", parse_mode="html")
+        if check_person(str(message.chat.id))[2]:
+            bot.send_message(message.chat.id,
+                             f"За сколько минут до урока скидывать уведомление(число кратное 5)?\nНапишите команду /dtime <b>{'x'}</b>",
+                             parse_mode="html")
+        else:
+            markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
+            b1 = telebot.types.InlineKeyboardButton("Расписание на сегодня")
+            b2 = telebot.types.InlineKeyboardButton("Расписание на завтра")
+            b3 = telebot.types.InlineKeyboardButton("Следующий урок")
+            markup.add(b1, b2, b3)
+            bot.send_message(message.chat.id, "Все сделано", reply_markup=markup)
     elif message.text == "Я из Москвы":
         timez = "3"
         parcer.change_tz(_id=message.chat.id,
