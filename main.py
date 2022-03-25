@@ -337,17 +337,19 @@ def text(message):
     elif message.text == "Расписание на сегодня":
         n = 0
         info = f'{parcer.day_dairy(message.chat.id, (today + n) % 7 if today != 6 else 7)}\n'
+        info = f'<b>{info[:info.index(":") + 1]}</b>{info[info.index(":") + 1:]}'
         while info[-12:-2] == "нет уроков":
             n += 1
             info += f'{parcer.day_dairy(message.chat.id, (today + n) % 7 if today + n != 7 else 7)}\n'
-        bot.send_message(message.chat.id, info)
+        bot.send_message(message.chat.id, info, parse_mode="html")
     elif message.text == "Расписание на завтра":
         n = 1
         info = f'{parcer.day_dairy(message.chat.id, (today + n) % 7 if today != 6 else 7)}\n'
+        info = f'<b>{info[:info.index(":") + 1]}</b>{info[info.index(":") + 1:]}'
         while info[-12:-2] == "нет уроков":
             n += 1
             info += f'{parcer.day_dairy(message.chat.id, (today + n) % 7 if today + n != 7 else 7)}\n'
-        bot.send_message(message.chat.id, info)
+        bot.send_message(message.chat.id, info, parse_mode="html")
     elif message.text == "Следующий урок":
         with open("database.json") as file:
             sfile = json.load(file)
@@ -359,11 +361,11 @@ def text(message):
                 if next_today != today or int(i.split(":")[0])\
                         > int(timing.split(":")[0]) or (int(i.split(":")[0]) == int(timing.split(":")[0])
                                                         and int(i.split(":")[1]) > int(timing.split(":")[1])):
-                    info = f'Следующий урок в' \
+                    info = f'<b>Следующий урок</b> в' \
                            f' {["пн", "вт", "ср", "чт", "пт", "сб", "вс"][next_today - 1]} в {i}\n{lessons[i]}'
                     break
-            next_today = (next_today + 1) % 7 if today != 6 else 7
-        bot.send_message(message.chat.id, info)
+            next_today = (next_today + 1) % 7 if next_today != 6 else 7
+        bot.send_message(message.chat.id, info, parse_mode="html")
     else:
         bot.send_message(message.chat.id, "Не понял о чем ты\n/ready - Обратно")
 
@@ -407,15 +409,10 @@ def handle_docs_photo(message):
 
 @bot.message_handler()
 def send_not(_id, lesson, dtime):
-    with open("database.json") as file:
-        sfile = json.load(file)
-    if str(_id) in sfile and "stickers" in sfile[str(_id)]:
-        bot.send_sticker(_id, random.choice(sfile[str(_id)]["stickers"]))
     _id = str(_id)
     with open("message.json") as file:
         mfile = json.load(file)
     if mfile != {}:
-        print([i for i in mfile[[i for i in mfile][0]]][0])
         if [i for i in mfile[[i for i in mfile][0]]][0] != time.strftime("%H:%M"):
             with open("message.json", "w") as file:
                 json.dump({}, file)
@@ -424,12 +421,20 @@ def send_not(_id, lesson, dtime):
     if _id in mfile:
         mfile1 = mfile[_id]
         if lesson not in mfile1[time.strftime("%H:%M")]:
+            with open("database.json") as file:
+                sfile = json.load(file)
+            if str(_id) in sfile and "stickers" in sfile[str(_id)]:
+                bot.send_sticker(_id, random.choice(sfile[str(_id)]["stickers"]))
             bot.send_message(_id, f'Скоро урок "{lesson}"!\nчерез {dtime} минут')
             mfile1[time.strftime("%H:%M")].append(lesson)
         mfile[_id] = mfile1
     else:
         mfile1 = {time.strftime("%H:%M"): [lesson]}
         mfile[_id] = mfile1
+        with open("database.json") as file:
+            sfile = json.load(file)
+        if str(_id) in sfile and "stickers" in sfile[str(_id)]:
+            bot.send_sticker(_id, random.choice(sfile[str(_id)]["stickers"]))
         bot.send_message(_id, f'Скоро урок "{lesson}"!\nчерез {dtime} минут')
     with open("message.json", "w") as file:
         json.dump(mfile, file)
