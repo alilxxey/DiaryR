@@ -121,7 +121,7 @@ def changedtime(message):
     try:
         bot.send_message(message.chat.id,
                          f"За сколько минут до урока скидывать уведомление(число кратное 5)?\n"
-                         f"Напишите команду /dtime <b>{'x'}</b>",
+                         f"Напишите команду /dtime <b>x</b>",
                          parse_mode="html")
     except Exception as e:
         print(e)
@@ -166,19 +166,15 @@ def del_stickers(message):
 @bot.message_handler(commands=['changeTZ'])
 def changetz(message):
     try:
-        bot.send_message(message.chat.id, f'Напиши свой часовой пояс в формате ± <b>x</b>\n(Москва: +3)',
-                         reply_markup=telebot.types.ReplyKeyboardRemove())
+        bot.send_message(message.chat.id, f'Напиши свой часовой пояс в формате ± <b>x</b>\n(Москва: + 3)',
+                         reply_markup=telebot.types.ReplyKeyboardRemove(), parse_mode='html')
 
     except Exception as e:
         print(e)
 
 
-@bot.message_handler(commands=['diary'])
+@bot.message_handler(commands=['check_diary'])
 def diary(message):
-    with open("database.json") as file:
-        sfile = json.load(file)
-    if str(message.chat.id) in sfile and "stickers" in sfile[str(message.chat.id)]:
-        bot.send_sticker(message.chat.id, random.choice(sfile[str(message.chat.id)]["stickers"]))
     try:
         _id = message.chat.id
         alldairy = ""
@@ -196,16 +192,12 @@ def diary(message):
 
 @bot.message_handler(commands=['ready'])
 def ready(message):
-    with open("database.json") as file:
-        sfile = json.load(file)
-    if str(message.chat.id) in sfile and "stickers" in sfile[str(message.chat.id)]:
-        bot.send_sticker(message.chat.id, random.choice(sfile[str(message.chat.id)]["stickers"]))
     markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
     b1 = telebot.types.InlineKeyboardButton("Расписание на сегодня")
     b2 = telebot.types.InlineKeyboardButton("Расписание на завтра")
     b3 = telebot.types.InlineKeyboardButton("Следующий урок")
-    markup.add(b1, b2, b3)
-
+    b4 = telebot.types.InlineKeyboardButton("Расписание")
+    markup.add(b1, b2, b3, b4)
     bot.send_message(message.chat.id, "Все сделано\n/settings - Проверить или изменить\n"
                                       "/stickers - Tы можешь разбавить дизайн своими стикерами", reply_markup=markup)
 
@@ -217,7 +209,8 @@ def settings(message):
         with open('database.json') as f:
             database = json.load(f)
 
-        bot.send_message(message.chat.id, f'Время, за которое приходит уведомление: {database[str(_id)]["dtime"]}\n'
+        bot.send_message(message.chat.id, f'Время, за которое приходит уведомление: {database[str(_id)]["dtime"]}'
+                                          f'минут\n'
                                           f'Ваш часовой пояс: UTC{database[str(_id)]["timez"]}\n'
                                           f'Сообщить о неисправности: @alilxxey @bez_griga',
                          reply_markup=telebot.types.ReplyKeyboardRemove())
@@ -226,7 +219,7 @@ def settings(message):
                                           f'или ты хочешь его изменить:\n'
                                           f'/changeDtime - изменить время уведомления до урока\n'
                                           f'/changeTZ - изменить часовой пояс\n'
-                                          f'/diary - проверить расписание\n'
+                                          f'/check_diary - проверить расписание\n'
                                           f'/ready - Обратно')
 
     except Exception as e:
@@ -260,9 +253,9 @@ def start(message):
 def setdtime(message):
     try:
         a = message.text.replace('/dtime ', '')
-        if not a:
+        if not a.isdigit():
             bot.send_message(message.chat.id, f'Ты не отправил число:( \nПосле команды /dtime укажи число\n'
-                                              f'Пример: (/dtime 5)')
+                                              f'Пример: /dtime 5')
             return
         try:
             dtime = int(a) - int(a) % 5
@@ -282,7 +275,8 @@ def setdtime(message):
                 b1 = telebot.types.InlineKeyboardButton("Расписание на сегодня")
                 b2 = telebot.types.InlineKeyboardButton("Расписание на завтра")
                 b3 = telebot.types.InlineKeyboardButton("Следующий урок")
-                markup.add(b1, b2, b3)
+                b4 = telebot.types.InlineKeyboardButton("Расписание")
+                markup.add(b1, b2, b3, b4)
                 bot.send_message(message.chat.id,
                                  "Все сделано\n/settings - Проверить или изменить\n"
                                  "/stickers - Tы можешь разбавить дизайн своими стикерами",
@@ -298,76 +292,105 @@ def setdtime(message):
 
 @bot.message_handler()
 def text(message):
-    with open("database.json") as file:
-        sfile = json.load(file)
-    if str(message.chat.id) in sfile and "stickers" in sfile[str(message.chat.id)]:
-        bot.send_sticker(message.chat.id, random.choice(sfile[str(message.chat.id)]["stickers"]))
-    today = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].index(
-        time.strftime("%A")) + 1
-    timing = time.strftime("%H:%M")
-    if message.text == 'Часовой пояc':
-        bot.send_message(message.chat.id, 'отправь сообщение в формате "+- х"',
-                         reply_markup=telebot.types.ReplyKeyboardRemove())
-    elif message.text[0] in "+-":
-        timez = message.text.replace(" ", "").replace('+', '')
-        parcer.change_tz(_id=message.chat.id,
-                         newtz=timez)
-        if not check_person(message.chat.id)[2]:
-            bot.send_message(message.chat.id,
-                             f"За сколько минут до урока скидывать уведомление(число кратное 5)?\n"
-                             f"Напишите команду /dtime <b>{'x'}</b>",
-                             parse_mode="html")
+    try:
+        today = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].index(
+            time.strftime("%A")) + 1
+        timing = time.strftime("%H:%M")
+        if message.text == 'Часовой пояc':
+            bot.send_message(message.chat.id, 'отправь сообщение в формате "+ х"',
+                             reply_markup=telebot.types.ReplyKeyboardRemove())
+        elif message.text[0] == "+":
+            timez = message.text.replace(" ", "").replace('+', '')
+            if timez[1:].isdigit():
+                parcer.change_tz(_id=message.chat.id,
+                                 newtz=timez)
+                if not check_person(message.chat.id)[2]:
+                    bot.send_message(message.chat.id,
+                                     f"За сколько минут до урока скидывать уведомление(число кратное 5)?\n"
+                                     f"Напишите команду /dtime <b>{'x'}</b>",
+                                     parse_mode="html")
+                else:
+                    markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
+                    b1 = telebot.types.InlineKeyboardButton("Расписание на сегодня")
+                    b2 = telebot.types.InlineKeyboardButton("Расписание на завтра")
+                    b3 = telebot.types.InlineKeyboardButton("Следующий урок")
+                    b4 = telebot.types.InlineKeyboardButton("Расписание")
+                    markup.add(b1, b2, b3, b4)
+                    bot.send_message(message.chat.id, "Все сделано\n/settings - Проверить или изменить\n"
+                                                      "/stickers - Tы можешь разбавить дизайн своими стикерами",
+                                     reply_markup=markup)
+            else:
+                bot.send_message(message.chat.id, "Не понял о чем ты :(\nПопробуй ещё раз")
+        elif message.text == "Я из Москвы":
+            timez = "3"
+            parcer.change_tz(_id=message.chat.id,
+                             newtz=timez)
+            bot.send_message(message.chat.id, f"За сколько до урока скидывать уведомление(число кратное 5)?"
+                                              f"\nНапишите команду /dtime <b>{'x'}</b>",
+                             parse_mode='html',
+                             reply_markup=telebot.types.ReplyKeyboardRemove())
+        elif message.text == "Расписание на сегодня":
+            with open("database.json") as file:
+                sfile = json.load(file)
+            if str(message.chat.id) in sfile and "stickers" in sfile[str(message.chat.id)]:
+                bot.send_sticker(message.chat.id, random.choice(sfile[str(message.chat.id)]["stickers"]))
+            n = 0
+            info = f'{parcer.day_dairy(message.chat.id, (today + n) % 7 if today != 7 else 7)}\n'
+            info = f'<b>{info[:info.index(":") + 1]}</b>{info[info.index(":") + 1:]}'
+            while info[-12:-2] == "нет уроков":
+                n += 1
+                info += f'{parcer.day_dairy(message.chat.id, (today + n) % 7 if today + n != 7 else 7)}\n'
+            bot.send_message(message.chat.id, info, parse_mode="html")
+        elif message.text == "Расписание на завтра":
+            with open("database.json") as file:
+                sfile = json.load(file)
+            if str(message.chat.id) in sfile and "stickers" in sfile[str(message.chat.id)]:
+                bot.send_sticker(message.chat.id, random.choice(sfile[str(message.chat.id)]["stickers"]))
+            n = 1
+            info = f'{parcer.day_dairy(message.chat.id, (today + n) % 7 if today != 6 else 7)}\n'
+            info = f'<b>{info[:info.index(":") + 1]}</b>{info[info.index(":") + 1:]}'
+            while info[-12:-2] == "нет уроков":
+                n += 1
+                info += f'{parcer.day_dairy(message.chat.id, (today + n) % 7 if today + n != 7 else 7)}\n'
+            bot.send_message(message.chat.id, info, parse_mode="html")
+        elif message.text == "Следующий урок":
+            with open("database.json") as file:
+                sfile = json.load(file)
+            if str(message.chat.id) in sfile and "stickers" in sfile[str(message.chat.id)]:
+                bot.send_sticker(message.chat.id, random.choice(sfile[str(message.chat.id)]["stickers"]))
+            with open("database.json") as file:
+                sfile = json.load(file)
+            next_today = 0 + today
+            info = ""
+            while info == "":
+                lessons = sfile[str(message.chat.id)][str(next_today)]
+                for i in lessons.keys():
+                    if next_today != today or int(i.split(":")[0])\
+                            > int(timing.split(":")[0]) or (int(i.split(":")[0]) == int(timing.split(":")[0])
+                                                            and int(i.split(":")[1]) > int(timing.split(":")[1])):
+                        info = f'<b>Следующий урок</b> в' \
+                               f' {["пн", "вт", "ср", "чт", "пт", "сб", "вс"][next_today - 1]} в {i}\n{lessons[i]}'
+                        break
+                next_today = (next_today + 1) % 7 if next_today != 6 else 7
+            bot.send_message(message.chat.id, info, parse_mode="html")
+        elif message.text == "Расписание":
+            with open("database.json") as file:
+                sfile = json.load(file)
+            if str(message.chat.id) in sfile and "stickers" in sfile[str(message.chat.id)]:
+                bot.send_sticker(message.chat.id, random.choice(sfile[str(message.chat.id)]["stickers"]))
+            try:
+                _id = message.chat.id
+                alldairy = ""
+                for i in range(1, 8):
+                    day_d = parcer.day_dairy(_id, i)
+                    alldairy += f'{day_d}\n'
+                bot.send_message(_id, alldairy)
+            except Exception as e:
+                print(e)
         else:
-            markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
-            b1 = telebot.types.InlineKeyboardButton("Расписание на сегодня")
-            b2 = telebot.types.InlineKeyboardButton("Расписание на завтра")
-            b3 = telebot.types.InlineKeyboardButton("Следующий урок")
-            markup.add(b1, b2, b3)
-            bot.send_message(message.chat.id, "Все сделано\n/settings - Проверить или изменить\n"
-                                              "/stickers - Tы можешь разбавить дизайн своими стикерами",
-                             reply_markup=markup)
-    elif message.text == "Я из Москвы":
-        timez = "3"
-        parcer.change_tz(_id=message.chat.id,
-                         newtz=timez)
-        bot.send_message(message.chat.id, f"За сколько до урока скидывать уведомление(число кратное 5)?"
-                                          f"\nНапишите команду /dtime <b>{'x'}</b>",
-                         parse_mode='html',
-                         reply_markup=telebot.types.ReplyKeyboardRemove())
-    elif message.text == "Расписание на сегодня":
-        n = 0
-        info = f'{parcer.day_dairy(message.chat.id, (today + n) % 7 if today != 6 else 7)}\n'
-        info = f'<b>{info[:info.index(":") + 1]}</b>{info[info.index(":") + 1:]}'
-        while info[-12:-2] == "нет уроков":
-            n += 1
-            info += f'{parcer.day_dairy(message.chat.id, (today + n) % 7 if today + n != 7 else 7)}\n'
-        bot.send_message(message.chat.id, info, parse_mode="html")
-    elif message.text == "Расписание на завтра":
-        n = 1
-        info = f'{parcer.day_dairy(message.chat.id, (today + n) % 7 if today != 6 else 7)}\n'
-        info = f'<b>{info[:info.index(":") + 1]}</b>{info[info.index(":") + 1:]}'
-        while info[-12:-2] == "нет уроков":
-            n += 1
-            info += f'{parcer.day_dairy(message.chat.id, (today + n) % 7 if today + n != 7 else 7)}\n'
-        bot.send_message(message.chat.id, info, parse_mode="html")
-    elif message.text == "Следующий урок":
-        with open("database.json") as file:
-            sfile = json.load(file)
-        next_today = 0 + today
-        info = ""
-        while info == "":
-            lessons = sfile[str(message.chat.id)][str(next_today)]
-            for i in lessons.keys():
-                if next_today != today or int(i.split(":")[0])\
-                        > int(timing.split(":")[0]) or (int(i.split(":")[0]) == int(timing.split(":")[0])
-                                                        and int(i.split(":")[1]) > int(timing.split(":")[1])):
-                    info = f'<b>Следующий урок</b> в' \
-                           f' {["пн", "вт", "ср", "чт", "пт", "сб", "вс"][next_today - 1]} в {i}\n{lessons[i]}'
-                    break
-            next_today = (next_today + 1) % 7 if next_today != 6 else 7
-        bot.send_message(message.chat.id, info, parse_mode="html")
-    else:
-        bot.send_message(message.chat.id, "Не понял о чем ты\n/ready - Обратно")
+            bot.send_message(message.chat.id, "Не понял о чем ты :(\n/ready - Обратно")
+    except Exception:
+        bot.send_message(message.chat.id, "Ошибка :(\n/settings")
 
 
 @bot.message_handler(content_types=['document'])
@@ -383,25 +406,29 @@ def handle_docs_photo(message):
                 new_file.write(downloaded_file)
 
             bot.reply_to(message, "Я получил ваш файл")
-            parcer.parce(chat_id)
-            b = check_person(str(message.chat.id))
-
-            if not b[1]:
-                bot.send_message(message.chat.id, "Остался часовой пояс")
-
+            m = parcer.parce(chat_id)
+            if m == "no":
+                bot.send_message(message.chat.id, "Что то пошло не так :(\nПопробуй ещё раз")
             else:
-                markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
-                b1 = telebot.types.InlineKeyboardButton("Расписание на сегодня")
-                b2 = telebot.types.InlineKeyboardButton("Расписание на завтра")
-                b3 = telebot.types.InlineKeyboardButton("Следующий урок")
-                markup.add(b1, b2, b3)
-                bot.send_message(message.chat.id,
-                                 "Все сделано\n/settings - Проверить или изменить\n"
-                                 "/stickers - Tы можешь разбавить дизайн своими стикерами",
-                                 reply_markup=markup)
+                b = check_person(str(message.chat.id))
+
+                if not b[1]:
+                    bot.send_message(message.chat.id, "Остался часовой пояс")
+
+                else:
+                    markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
+                    b1 = telebot.types.InlineKeyboardButton("Расписание на сегодня")
+                    b2 = telebot.types.InlineKeyboardButton("Расписание на завтра")
+                    b3 = telebot.types.InlineKeyboardButton("Следующий урок")
+                    b4 = telebot.types.InlineKeyboardButton("Расписание")
+                    markup.add(b1, b2, b3, b4)
+                    bot.send_message(message.chat.id,
+                                     "Все сделано\n/settings - Проверить или изменить\n"
+                                     "/stickers - Tы можешь разбавить дизайн своими стикерами",
+                                     reply_markup=markup)
 
         except Exception as e1:
-            bot.reply_to(message, (str(e1) + ' - ОШИБКА!'))
+            print(e1)
 
     except Exception as e:
         print(e)
@@ -410,34 +437,37 @@ def handle_docs_photo(message):
 @bot.message_handler()
 def send_not(_id, lesson, dtime):
     _id = str(_id)
-    with open("message.json") as file:
-        mfile = json.load(file)
-    if mfile != {}:
-        if [i for i in mfile[[i for i in mfile][0]]][0] != time.strftime("%H:%M"):
-            with open("message.json", "w") as file:
-                json.dump({}, file)
-    with open("message.json") as file:
-        mfile = json.load(file)
-    if _id in mfile:
-        mfile1 = mfile[_id]
-        if lesson not in mfile1[time.strftime("%H:%M")]:
+    try:
+        with open("message.json") as file:
+            mfile = json.load(file)
+        if mfile != {}:
+            if [i for i in mfile[[i for i in mfile][0]]][0] != time.strftime("%H:%M"):
+                with open("message.json", "w") as file:
+                    json.dump({}, file)
+        with open("message.json") as file:
+            mfile = json.load(file)
+        if _id in mfile:
+            mfile1 = mfile[_id]
+            if lesson not in mfile1[time.strftime("%H:%M")]:
+                with open("database.json") as file:
+                    sfile = json.load(file)
+                if str(_id) in sfile and "stickers" in sfile[str(_id)]:
+                    bot.send_sticker(_id, random.choice(sfile[str(_id)]["stickers"]))
+                bot.send_message(_id, f'Скоро урок "{lesson}"!\nчерез {dtime} минут')
+                mfile1[time.strftime("%H:%M")].append(lesson)
+            mfile[_id] = mfile1
+        else:
+            mfile1 = {time.strftime("%H:%M"): [lesson]}
+            mfile[_id] = mfile1
             with open("database.json") as file:
                 sfile = json.load(file)
             if str(_id) in sfile and "stickers" in sfile[str(_id)]:
                 bot.send_sticker(_id, random.choice(sfile[str(_id)]["stickers"]))
             bot.send_message(_id, f'Скоро урок "{lesson}"!\nчерез {dtime} минут')
-            mfile1[time.strftime("%H:%M")].append(lesson)
-        mfile[_id] = mfile1
-    else:
-        mfile1 = {time.strftime("%H:%M"): [lesson]}
-        mfile[_id] = mfile1
-        with open("database.json") as file:
-            sfile = json.load(file)
-        if str(_id) in sfile and "stickers" in sfile[str(_id)]:
-            bot.send_sticker(_id, random.choice(sfile[str(_id)]["stickers"]))
-        bot.send_message(_id, f'Скоро урок "{lesson}"!\nчерез {dtime} минут')
-    with open("message.json", "w") as file:
-        json.dump(mfile, file)
+        with open("message.json", "w") as file:
+            json.dump(mfile, file)
+    except Exception as e:
+        bot.send_message(_id, "Ошибка:(\n/settings")
 
 
 if __name__ == '__main__':
