@@ -166,7 +166,7 @@ def del_stickers(message):
 @bot.message_handler(commands=['changeTZ'])
 def changetz(message):
     try:
-        bot.send_message(message.chat.id, f'Напиши свой часовой пояс в формате ± <b>x</b>\n(Москва: + 3)',
+        bot.send_message(message.chat.id, f'Напиши свой часовой пояс в формате + <b>x</b>\n(Москва: + 3)',
                          reply_markup=telebot.types.ReplyKeyboardRemove(), parse_mode='html')
 
     except Exception as e:
