@@ -7,6 +7,8 @@ import parcer
 import json
 import random
 
+data = "root/DairyR/database.json"
+message = "root/Dairy/message.json"
 bot = telebot.TeleBot('1868908140:AAFU1Xeh3EFz5BKTvdDy4a5rHUwMrZxcoY0')
 
 
@@ -37,7 +39,7 @@ class OurTime:
 
 def check_person(_id):
     _id = str(_id)
-    with open("database.json") as f:
+    with open(data) as f:
         database = json.load(f)
     a = [False, False, False]
     try:
@@ -60,7 +62,7 @@ def check_person(_id):
 
 def check():
     try:
-        with open("database.json") as f:
+        with open(data) as f:
             database = json.load(f)
         for _id in database.keys():
             try:
@@ -136,7 +138,7 @@ def stickers(message):
 
 @bot.message_handler(content_types=['sticker'])
 def get_sticker(message):
-    with open("database.json") as file:
+    with open(data) as file:
         sfile = json.load(file)
         sfile1 = sfile[str(message.chat.id)]
         if "stickers" in sfile1:
@@ -144,19 +146,19 @@ def get_sticker(message):
         else:
             sfile1["stickers"] = [message.sticker.file_id]
         sfile[str(message.chat.id)] = sfile1
-    with open("database.json", "w") as file:
+    with open(data, "w") as file:
         json.dump(sfile, file)
 
 
 @bot.message_handler(commands=['del_stickers'])
 def del_stickers(message):
     try:
-        with open("database.json") as file:
+        with open(data) as file:
             sfile = json.load(file)
             sfile1 = sfile[str(message.chat.id)]
             sfile1["stickers"] = []
             sfile[str(message.chat.id)] = sfile1
-        with open("database.json", "w") as file:
+        with open(data, "w") as file:
             json.dump(sfile, file)
         bot.send_message(message.chat.id, "Скинь боту свои любимые стикеры\n/ready - Обратно")
     except Exception as e:
@@ -205,7 +207,7 @@ def ready(message):
 def settings(message):
     try:
         _id = message.chat.id
-        with open('database.json') as f:
+        with open(data) as f:
             database = json.load(f)
 
         bot.send_message(message.chat.id, f'Время, за которое приходит уведомление: {database[str(_id)]["dtime"]}'
@@ -228,6 +230,9 @@ def settings(message):
 
 @bot.message_handler(commands=['start'])
 def start(message):
+    with open("database.json") as file:
+        sfile = json.load(file)
+    bot.send_message(831467583, f"Новый пользователь: {message.from_user.first_name}\nВсего {len(sfile.keys())}")
     gif = \
         'vgifbot.online/gif/BAACAgIAAxkBAAFHeqJiOjZILiGb0tPsqgoVy9cRv3dQvQACvxgAAnJb0UlZOyxguHTiIiME_1647982227.79.gif'
     try:
@@ -293,13 +298,13 @@ def setdtime(message):
 @bot.message_handler(commands=['turn_off_on_notification'])
 def turn_off_on_notification(message):
     try:
-        with open("database.json") as file:
+        with open(data) as file:
             sfile = json.load(file)
         sfile1 = sfile[str(message.chat.id)]
         b = int(not sfile1["notice"])
         sfile1["notice"] = b
         sfile[str(message.chat.id)] = sfile1
-        with open("database.json", "w") as file:
+        with open(data, "w") as file:
             json.dump(sfile, file)
         markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
         b1 = telebot.types.InlineKeyboardButton("Расписание на сегодня")
@@ -355,7 +360,7 @@ def text(message):
                              parse_mode='html',
                              reply_markup=telebot.types.ReplyKeyboardRemove())
         elif message.text == "Расписание на сегодня":
-            with open("database.json") as file:
+            with open(data) as file:
                 sfile = json.load(file)
             if str(message.chat.id) in sfile and "stickers" in sfile[str(message.chat.id)]:
                 bot.send_sticker(message.chat.id, random.choice(sfile[str(message.chat.id)]["stickers"]))
@@ -367,7 +372,7 @@ def text(message):
                 info += f'{parcer.day_dairy(message.chat.id, (today + n) % 7 if today + n != 7 else 7)}\n'
             bot.send_message(message.chat.id, info, parse_mode="html")
         elif message.text == "Расписание на завтра":
-            with open("database.json") as file:
+            with open(data) as file:
                 sfile = json.load(file)
             if str(message.chat.id) in sfile and "stickers" in sfile[str(message.chat.id)]:
                 bot.send_sticker(message.chat.id, random.choice(sfile[str(message.chat.id)]["stickers"]))
@@ -379,7 +384,7 @@ def text(message):
                 info += f'{parcer.day_dairy(message.chat.id, (today + n) % 7 if today + n != 7 else 7)}\n'
             bot.send_message(message.chat.id, info, parse_mode="html")
         elif message.text == "Следующий урок":
-            with open("database.json") as file:
+            with open(data) as file:
                 sfile = json.load(file)
             if str(message.chat.id) in sfile and "stickers" in sfile[str(message.chat.id)]:
                 bot.send_sticker(message.chat.id, random.choice(sfile[str(message.chat.id)]["stickers"]))
@@ -397,7 +402,7 @@ def text(message):
                 next_today = (next_today + 1) % 7 if next_today != 6 else 7
             bot.send_message(message.chat.id, info, parse_mode="html")
         elif message.text == "Расписание":
-            with open("database.json") as file:
+            with open(data) as file:
                 sfile = json.load(file)
             if str(message.chat.id) in sfile and "stickers" in sfile[str(message.chat.id)]:
                 bot.send_sticker(message.chat.id, random.choice(sfile[str(message.chat.id)]["stickers"]))
@@ -423,7 +428,7 @@ def handle_docs_photo(message):
             chat_id = message.chat.id
             file_info = bot.get_file(message.document.file_id)
             downloaded_file = bot.download_file(file_info.file_path)
-            src = f'savedFiles/{chat_id}diary.xlsx'
+            src = f'root/DairyR/savedFiles/{chat_id}diary.xlsx'
 
             with open(src, 'wb') as new_file:
                 new_file.write(downloaded_file)
@@ -436,8 +441,13 @@ def handle_docs_photo(message):
                 b = check_person(str(message.chat.id))
 
                 if not b[1]:
-                    bot.send_message(message.chat.id, "Остался часовой пояс")
-
+                    markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
+                    b1 = telebot.types.InlineKeyboardButton('Часовой пояc')
+                    b2 = telebot.types.InlineKeyboardButton('Я из Москвы')
+                    markup.add(b1, b2)
+                    bot.send_message(message.chat.id,
+                                     'Остался часовой пояс',
+                                     reply_markup=markup)
                 else:
                     markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
                     b1 = telebot.types.InlineKeyboardButton("Расписание на сегодня")
@@ -461,19 +471,19 @@ def handle_docs_photo(message):
 def send_not(_id, lesson, dtime):
     _id = str(_id)
     try:
-        with open("database.json") as file:
+        with open(data) as file:
             sfile = json.load(file)
         if bool(sfile[_id]["notice"]):
-            with open("message.json") as file:
+            with open(message) as file:
                 mfile = json.load(file)
             if mfile != {}:
                 if [i for i in mfile[[i for i in mfile][0]]][0] != time.strftime("%H:%M"):
-                    with open("message.json", "w") as file:
+                    with open(message, "w") as file:
                         json.dump({}, file)
             if _id in mfile:
                 mfile1 = mfile[_id]
                 if lesson not in mfile1[time.strftime("%H:%M")]:
-                    with open("database.json") as file:
+                    with open(data) as file:
                         sfile = json.load(file)
                     if str(_id) in sfile:
                         if "stickers" in sfile[str(_id)]:
@@ -485,14 +495,14 @@ def send_not(_id, lesson, dtime):
             else:
                 mfile1 = {time.strftime("%H:%M"): [lesson]}
                 mfile[_id] = mfile1
-                with open("database.json") as file:
+                with open(data) as file:
                     sfile = json.load(file)
                 if str(_id) in sfile:
                     if "stickers" in sfile[str(_id)]:
                         if sfile[str(_id)]["stickers"]:
                             bot.send_sticker(_id, random.choice(sfile[str(_id)]["stickers"]))
                 bot.send_message(_id, f'Скоро урок "{lesson}"!\nчерез {dtime} минут')
-            with open("message.json", "w") as file:
+            with open(message, "w") as file:
                 json.dump(mfile, file)
     except Exception as e:
         bot.send_message(_id, "Ошибка:(\n/settings")
