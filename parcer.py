@@ -2,8 +2,7 @@ import pandas as pd
 import json
 import os
 from main import check_person
-
-data = "root/DairyR/database.json"
+from main import cd
 message = "root/Dairy/message.json"
 
 def parce(_id):
@@ -26,7 +25,7 @@ def parce(_id):
         for i in range(1, len(m1) + 1):
             s[str(i)] = m1[i - 1]
 
-        with open(data) as file:
+        with open(cd) as file:
             sfile = json.load(file)
             if str(_id) in sfile:
                 sfile1 = sfile[str(_id)]
@@ -39,7 +38,7 @@ def parce(_id):
         for i in range(1, 8):
             if str(i) not in sfile[str(_id)]:
                 sfile[str(_id)][f"{i}"] = {}
-        with open(data, "w", encoding='utf-8') as file:
+        with open(cd, "w", encoding='utf-8') as file:
             json.dump(sfile, file)
         os.remove(f"root/DairyR/savedFiles/{_id}diary.xlsx")
         return
@@ -50,7 +49,7 @@ def parce(_id):
 
 def change_tz(_id, newtz):
     a = check_person(_id)
-    with open(data) as file:
+    with open(cd) as file:
         sfile = json.load(file)
 
         if str(_id) in sfile:
@@ -66,24 +65,24 @@ def change_tz(_id, newtz):
         else:
             sfile1 = {"timez": newtz}
             sfile[str(_id)] = sfile1
-    with open(data, "w", encoding='utf-8') as file:
+    with open(cd, "w", encoding='utf-8') as file:
         json.dump(sfile, file)
     return
 
 
 def add_dtime(_id, dtime):
-    with open(data) as file:
+    with open(cd) as file:
         sfile = json.load(file)
         sfile1 = sfile[str(_id)]
         sfile1["dtime"] = dtime
         sfile[str(_id)] = sfile1
-    with open(data, "w") as file:
+    with open(cd, "w") as file:
         json.dump(sfile, file)
     return
 
 
 def day_dairy(_id, day):
-    with open(data) as file:
+    with open(cd) as file:
         sfile = json.load(file)
         sfile1 = sfile[str(_id)][str(day)]
 
