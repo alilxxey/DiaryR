@@ -8,7 +8,8 @@ def parce(_id):
         excel_data = pd.read_excel(f'savedFiles/{_id}diary.xlsx')
         m = [(excel_data[f'Unnamed: {1 + 4 * i}'][5:],
               excel_data[f'Unnamed: {2 + 4 * i}'][5:],
-              excel_data[f'Unnamed: {3 + 4 * i}'][5:]) for i in range(6)]
+              excel_data[f'Unnamed: {3 + 4 * i}'][5:]) for i in range(6) if f'Unnamed: {3 + 4 * i}' in excel_data]
+        print(32)
         all1 = [tuple([[k if str(k) != 'nan' else "" for k in j] for j in i]) for i in m]
         for i in range(len(all1)):
             all1[i] = (all1[i][0],
@@ -21,26 +22,25 @@ def parce(_id):
         s = {}
         for i in range(1, len(m1) + 1):
             s[str(i)] = m1[i - 1]
-        a = check_person(_id)
 
         with open("database.json") as file:
             sfile = json.load(file)
-
-            if a[1]:
+            if str(_id) in sfile:
                 sfile1 = sfile[str(_id)]
-                for i in s.keys():
-                    sfile1[str(i)] = s[i]
-                sfile[str(_id)] = sfile1
-
+                sfile1["notice"] = 1
             else:
-                sfile[str(_id)] = s
-
-        if "7" not in sfile[str(_id)]:
-            sfile[str(_id)]["7"] = {}
+                sfile1 = {"notice": 1}
+            for i in s.keys():
+                sfile1[str(i)] = s[i]
+            sfile[str(_id)] = sfile1
+        for i in range(1, 8):
+            if str(i) not in sfile[str(_id)]:
+                sfile[str(_id)][f"{i}"] = {}
         with open("database.json", "w", encoding='utf-8') as file:
             json.dump(sfile, file)
         return
     except Exception as e:
+        print(e)
         return "no"
 
 

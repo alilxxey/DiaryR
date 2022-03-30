@@ -236,7 +236,7 @@ def start(message):
                          parse_mode='html')
 
         bot.send_animation(message.chat.id, gif)
-        bot.send_message(message.chat.id, "Скинь боту Execel файл с сайта эжд https://school.mos.ru/")
+        bot.send_message(message.chat.id, "Скинь боту Execel файл с сайта эжд https://school.mos.ru/ (доступен только с компьютера)")
         markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
         b1 = telebot.types.InlineKeyboardButton('Часовой пояc')
         b2 = telebot.types.InlineKeyboardButton('Я из Москвы')
@@ -254,7 +254,7 @@ def setdtime(message):
     try:
         a = message.text.replace('/dtime ', '')
         if not a.isdigit():
-            bot.send_message(message.chat.id, f'Ты не отправил число:( \nПосле команды /dtime укажи число\n'
+            bot.send_message(message.chat.id, f'Ты отправил не число:( \nПосле команды /dtime укажи число\n'
                                               f'Пример: /dtime 5')
             return
         try:
@@ -296,12 +296,24 @@ def turn_off_on_notification(message):
         with open("database.json") as file:
             sfile = json.load(file)
         sfile1 = sfile[str(message.chat.id)]
-        sfile1["notice"] = int(not sfile1["notice"])
+        b = int(not sfile1["notice"])
+        sfile1["notice"] = b
         sfile[str(message.chat.id)] = sfile1
         with open("database.json", "w") as file:
             json.dump(sfile, file)
+        markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
+        b1 = telebot.types.InlineKeyboardButton("Расписание на сегодня")
+        b2 = telebot.types.InlineKeyboardButton("Расписание на завтра")
+        b3 = telebot.types.InlineKeyboardButton("Следующий урок")
+        b4 = telebot.types.InlineKeyboardButton("Расписание")
+        markup.add(b1, b2, b3, b4)
+        bot.send_message(message.chat.id,
+                         "Все сделано\n/settings - Проверить или изменить\n"
+                         "/stickers - Tы можешь разбавить дизайн своими стикерами",
+                         reply_markup=markup)
     except Exception as e:
-        print(e, 999)
+        print(e)
+
 
 @bot.message_handler()
 def text(message):
@@ -463,8 +475,10 @@ def send_not(_id, lesson, dtime):
                 if lesson not in mfile1[time.strftime("%H:%M")]:
                     with open("database.json") as file:
                         sfile = json.load(file)
-                    if str(_id) in sfile and "stickers" in sfile[str(_id)]:
-                        bot.send_sticker(_id, random.choice(sfile[str(_id)]["stickers"]))
+                    if str(_id) in sfile:
+                        if "stickers" in sfile[str(_id)]:
+                            if sfile[str(_id)]["stickers"]:
+                                bot.send_sticker(_id, random.choice(sfile[str(_id)]["stickers"]))
                     bot.send_message(_id, f'Скоро урок "{lesson}"!\nчерез {dtime} минут')
                     mfile1[time.strftime("%H:%M")].append(lesson)
                 mfile[_id] = mfile1
@@ -473,8 +487,10 @@ def send_not(_id, lesson, dtime):
                 mfile[_id] = mfile1
                 with open("database.json") as file:
                     sfile = json.load(file)
-                if str(_id) in sfile and "stickers" in sfile[str(_id)]:
-                    bot.send_sticker(_id, random.choice(sfile[str(_id)]["stickers"]))
+                if str(_id) in sfile:
+                    if "stickers" in sfile[str(_id)]:
+                        if sfile[str(_id)]["stickers"]:
+                            bot.send_sticker(_id, random.choice(sfile[str(_id)]["stickers"]))
                 bot.send_message(_id, f'Скоро урок "{lesson}"!\nчерез {dtime} минут')
             with open("message.json", "w") as file:
                 json.dump(mfile, file)
@@ -486,6 +502,6 @@ if __name__ == '__main__':
     ScheduleMessage.start_process()
     try:
         bot.polling(none_stop=True)
-        
+
     except Exception as exc:
         print(exc)
