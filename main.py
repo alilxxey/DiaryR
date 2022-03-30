@@ -230,7 +230,7 @@ def settings(message):
 
 @bot.message_handler(commands=['start'])
 def start(message):
-    with open("database.json") as file:
+    with open(data) as file:
         sfile = json.load(file)
     bot.send_message(831467583, f"Новый пользователь: {message.from_user.first_name}\nВсего {len(sfile.keys())}")
     gif = \
